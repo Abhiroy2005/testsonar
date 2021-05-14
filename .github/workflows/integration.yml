@@ -1,14 +1,18 @@
-name :  Test CI
+name :  Scan & Coverage 
 
 on:
   push:
     branches:
       - 'feature/**'
       - main
+  pull_request :
+     branches :
+      - 'feature/**''     
+      - main
 
 jobs:
   QualityGateCheck:
-    name: Quality Check
+    name: Static analysis sonarcloud
     runs-on: ubuntu-latest
     steps: 
       - name : Checkout Code
@@ -23,3 +27,5 @@ jobs:
         env :
           GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}
           SONAR_TOKEN : ${{secrets.SONAR_TOKEN}}         
+  
+ 
