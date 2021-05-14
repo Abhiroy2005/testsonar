@@ -6,7 +6,7 @@ on:
       - 'feature/**'
 jobs:
   codecov:
-    name: Codecov Workflow
+    name: Code Coverage Workflow
     runs-on: ubuntu-18.04
     
     steps:
