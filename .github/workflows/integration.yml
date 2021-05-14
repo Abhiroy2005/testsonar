@@ -1,18 +1,14 @@
-name :  Scan & Coverage 
+name : Validate CodeBase
 
 on:
   push:
     branches:
       - 'feature/**'
-      - main
-  pull_request :
-     branches :
-      - 'feature/**'     
-      - main
+      - master
 
 jobs:
   QualityGateCheck:
-    name: Static analysis sonarcloud
+    name: Static Analysis 
     runs-on: ubuntu-latest
     steps: 
       - name : Checkout Code
@@ -21,9 +17,31 @@ jobs:
         uses : sonarsource/sonarcloud-github-action@v1.3
         with:
           projectBaseDir: .
-          args: >
-            -Dsonar.python.coverage.reportPaths=coverage.xml
-            -Dsonar.tests=tests/
+         
         env :
           GITHUB_TOKEN : ${{secrets.GITHUB_TOKEN}}
-          SONAR_TOKEN : ${{secrets.SONAR_TOKEN}}         
+          SONAR_TOKEN : ${{secrets.SONAR_TOKEN}}
+
+jobs:
+  codecov:
+  name: Code Coverage 
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout Code
+    - uses: actions/checkout@v2
+    - name: code coverage with Pytest
+    - uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Generate coverage report
+      run : |
+        pip install pytest
+        pip install pytest-cov
+        pytest --cov=../../tests --cov-report=xml
+    - name: Upload coverage report 
+      uses: codecov/codecov-action@v1 
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
+        file: ./coverage.xml
+        flags: unittests
+        
