@@ -8,8 +8,8 @@ on:
 
 jobs:
   QualityGateCheck:
-    name: Static Analysis 
-    runs-on: ubuntu-latest
+    - name: Static Analysis 
+    - runs-on: ubuntu-latest
     steps: 
       - name : Checkout Code
       - uses : actions/checkout@v2
