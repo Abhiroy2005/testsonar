@@ -56,7 +56,7 @@ jobs:
  
     steps:
       - name: Install Python for AWS CLI
-        run: apk add python3
+        run: sudo apt install python3
       - name: Install AWS cli
         run: pip3 install awscli
       - name: build docker image and tag
