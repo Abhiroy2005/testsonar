@@ -12,7 +12,7 @@ on:
 
 jobs:
   QualityGate-CodeAnalysis:
-    name: Generate Code Analysis Report
+    name: Generate Static Analysis Report
     runs-on: ubuntu-latest
     env: 
       SONAR_TOKEN: 4a02ae8c85ebd96f828e1906bdb233a423445a95
@@ -25,7 +25,7 @@ jobs:
           SONAR_TOKEN: ${{ env.SONAR_TOKEN }} 
 
   QualityGate-CodeCoverage:
-    name: Generate Code Analysis Report
+    name: Generate Code Coverage Report
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -60,7 +60,7 @@ jobs:
       - name: Install AWS cli
         run: pip3 install awscli
       - name: build docker image and tag
-        run: docker build -compress -t $ECR_REPO:$GITHUB_SHA .
+        run: docker build --compress -t $ECR_REPO:$GITHUB_SHA .
       - name: Login to aws ECR
         run: $(aws ecr get-login ---no-include-mail --region ap-south-1)
       - name: Push docker image to ECR
