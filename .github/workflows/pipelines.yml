@@ -55,12 +55,14 @@ jobs:
       ECR_REPO: ${{secrets.ECR_REPO}}
  
     steps:
+      - name: Check out code
+        uses: actions/checkout@v2
       - name: Install Python for AWS CLI
         run: sudo apt install python3
       - name: Install AWS cli
         run: pip3 install awscli
-      - name: build docker image and tag
-        run: docker build --compress -t $ECR_REPO:$GITHUB_SHA  ../
+      - name: Build docker image and tag
+        run: docker build --compress -t $ECR_REPO:$GITHUB_SHA  .
       - name: Login to aws ECR
         run: $(aws ecr get-login ---no-include-mail --region ap-south-1)
       - name: Push docker image to ECR
