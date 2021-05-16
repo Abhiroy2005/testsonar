@@ -51,7 +51,7 @@ jobs:
       ECR_REPO: ${{secrets.ECR_REPO}}
  
     steps:
-      - name: Check out code
+      - name: Check Out code
         uses: actions/checkout@v2
       - name: Install Python for AWS CLI
         run: sudo apt install python3
