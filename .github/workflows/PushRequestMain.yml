@@ -61,7 +61,7 @@ jobs:
             AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}     
     
-    UpdatePullRequest:
+  UpdatePullRequest:
       name: Update Pull Request With Report
       needs: [TerraformPlan]
       runs-on: ubuntu-latest
