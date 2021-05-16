@@ -39,7 +39,6 @@ Build:
       - name: Push tagged Image to ECR
         run:  docker push $ECR_REPO:latest             
 
-  
   TerraformPlanDev:
     name: Create terraform plan for development envrionement
     
