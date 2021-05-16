@@ -93,7 +93,7 @@ jobs:
           cd deploy/
           terraform init -backend=false
           terraform validate
-          terraform fmt -check
+          terraform fmt -check 
 
   DeployDev:
     name: deploy to dev environment
