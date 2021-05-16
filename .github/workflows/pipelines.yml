@@ -1,0 +1,124 @@
+name: CICD pipeline
+
+on:
+  push:
+    branches: 
+      - main
+      - 'feature/**'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+
+jobs:
+  QualityGate-CodeAnalysis:
+    name: Generate Static Analysis Report
+    runs-on: ubuntu-latest
+    env: 
+      SONAR_TOKEN: 4a02ae8c85ebd96f828e1906bdb233a423445a95
+    steps:
+      - uses: actions/checkout@v2
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          SONAR_TOKEN: ${{ env.SONAR_TOKEN }} 
+
+  QualityGate-CodeCoverage:
+    name: Generate Code Coverage Report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Set up Python
+        uses: actions/setup-python@master
+        with:
+          python-version: 3.8
+      - name: Generate Test Report
+        run: |
+          pip install pytest
+          pip install pytest-cov
+          pip install -r requirements.txt
+          pytest --cov=./ --cov-report=xml
+      
+      - name: Publish Test Report
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: ./coverage.xml
+          flags: unittests
+
+  Build:
+    name: Build and Push Docker Image To ECR
+    needs: [QualityGate-CodeAnalysis,QualityGate-CodeCoverage]
+    runs-on: ubuntu-latest
+    env:
+      ECR_REPO: ${{secrets.ECR_REPO}}
+ 
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Install Python for AWS CLI
+        run: sudo apt install python3
+      - name: Install AWS cli 
+        run: pip3 install awscli
+      - name: Build docker image and tag
+        run: docker build --compress -t $ECR_REPO:$GITHUB_SHA  .
+      - name: Login to aws 
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Connect to AWS ECR
+        id: connect-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Push docker image to ECR
+        run: docker push $ECR_REPO:$GITHUB_SHA
+      - name : Tag Docker Image 
+        run: docker tag $ECR_REPO:$GITHUB_SHA $ECR_REPO:latest
+      - name: Push tagged Image to ECR
+        run:  docker push $ECR_REPO:latest             
+
+ 
+
+  DeployDev:
+    name: deploy to dev environment
+    if: github.event_name == 'pull_request'
+    needs: [Build]
+    runs-on: ubuntu-latest
+    environment:
+      name: Development 
+      url: 'http://dev.myapp.com'
+    steps:
+      - name: Deploy to dev
+        run: echo deployed to dev environment. 
+
+  
+        
+        
+  DeployStaging:
+    name: Deploy to Staging environment
+    if: github.even_name == 'refs/head/main'
+    needs: [DeployDev]
+    runs-on: ubuntu-latest
+    environment:
+      name : Staging
+      url: 'http://staging.myapp.com'
+    steps:
+      - name: Deploy to Staging
+        run:  echo deployed to Staging
+
+
+  DeployProduction:
+    name: Deploy to Production environment
+    needs: [DeployStaging]
+    runs-on: ubuntu-latest
+    environment:
+      name : Production
+      url: 'http://staging.myapp.com'
+    steps:
+      - name: Deploy to Production
+        run:  echo deployed to Production
+             
