@@ -81,27 +81,44 @@ jobs:
       - name: Push tagged Image to ECR
         run:  docker push $ECR_REPO:latest             
 
- 
+  ValidateTerraform:
+    name: Initialize and Validate Terraform
+    needs: [QualityGate-CodeAnalysis,QualityGate-CodeCoverage]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
 
-  DeployDev:
-    name: deploy to dev environment
+      - name: Initialize Terraform
+        run: |
+          cd deploy/
+          terraform init -backend=false
+          terraform validate
+          terraform fmt -check   
+
+  TerraformPlanDev:
+    name: Create terraform plan for development envrionement
     if: github.event_name == 'pull_request'
-    needs: [Build]
+    needs: [Build,ValidateTerraform]
     runs-on: ubuntu-latest
     environment:
       name: Development 
       url: 'http://dev.myapp.com'
     steps:
-      - name: Deploy to dev
-        run: echo deployed to dev environment. 
+      - uses: actions/checkout@v2
 
+      - name: Create Terraform Plan
+        run: |
+          cd deploy/
+          export TF_VAR_ecr_image_api=$ECR_REPO:$GITHUB_SHA
+          terraform init
+          terraform workspace select dev || terraform workspace new dev
+          terraform plan
+               
   
-        
-        
   DeployStaging:
     name: Deploy to Staging environment
     if: github.even_name == 'refs/head/main'
-    needs: [DeployDev]
+    needs: [TerraformPlanDev]
     runs-on: ubuntu-latest
     environment:
       name : Staging
