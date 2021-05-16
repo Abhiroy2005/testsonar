@@ -36,7 +36,7 @@ jobs:
           pip install -r requirements.txt
           pytest --cov=./ --cov-report=xml
       
-      - name: Publish Test Report
+      - name: Publish Quality Gate Report
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
