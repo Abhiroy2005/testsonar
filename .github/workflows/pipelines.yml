@@ -98,7 +98,7 @@ jobs:
   DeployDev:
     name: deploy to dev environment
     if: github.event_name == 'pull_request'
-    needs: [Build,ValidateTerraform]
+    needs: [Build]
     runs-on: ubuntu-latest
     environment:
       name: Development 
