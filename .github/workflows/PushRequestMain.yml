@@ -1,65 +1,13 @@
-name: CICD pipeline
+name: Push Request PipeLine
 
 on:
-  pull_request:
+  push:
     branches: [main]
   workflow_dispatch:
 
-
-jobs:
-  QualityGate-CodeAnalysis:
-    name: Generate Static Analysis Report
-    runs-on: ubuntu-latest
-    env: 
-      SONAR_TOKEN: 4a02ae8c85ebd96f828e1906bdb233a423445a95
-    steps:
-      - uses: actions/checkout@v2
-      - name: SonarCloud Scan
-        uses: sonarsource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-          SONAR_TOKEN: ${{ env.SONAR_TOKEN }} 
-
-  QualityGate-CodeCoverage:
-    name: Generate Code Coverage Report
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v1
-      - name: Set up Python
-        uses: actions/setup-python@master
-        with:
-          python-version: 3.8
-      - name: Generate Test Report
-        run: |
-          pip install pytest
-          pip install pytest-cov
-          pip install -r requirements.txt
-          pytest --cov=./ --cov-report=xml
-      
-      - name: Publish Test Report
-        uses: codecov/codecov-action@v1
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          file: ./coverage.xml
-          flags: unittests
-  
-  ValidateTerraform:
-    name: Initialize and Validate Terraform
-    
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Initialize Terraform
-        run: |
-          docker-compose -f deploy/docker-compose.yml run --rm terraform init -backend=false
-          docker-compose -f deploy/docker-compose.yml run --rm terraform validate
-          docker-compose -f deploy/docker-compose.yml run --rm terraform fmt -check   
-        
-  Build:
+Build:
     name: Build and Push Docker Image To ECR
-    if: github.event.pull_request.merged == 'true'
-    needs: [QualityGate-CodeAnalysis,QualityGate-CodeCoverage]
+    
     runs-on: ubuntu-latest
     env:
       ECR_REPO: ${{secrets.ECR_REPO}}
@@ -137,4 +85,3 @@ jobs:
     steps:
       - name: Deploy to Production
         run:  echo deployed to Production
-             
