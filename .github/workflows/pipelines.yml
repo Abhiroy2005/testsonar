@@ -104,7 +104,6 @@ jobs:
       name: Development 
       url: 'http://dev.myapp.com'
     steps:
-      - name: Terraform Plan For Development Env
       - uses: actions/checkout@v2
 
       - name: Create Terraform Plan
