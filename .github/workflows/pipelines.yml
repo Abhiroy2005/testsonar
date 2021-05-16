@@ -73,7 +73,7 @@ jobs:
       - name: Connect to AWS ECR
         id: connect-ecr
         uses: aws-actions/amazon-ecr-login@v1
-        
+
       - name: Push docker image to ECR
         run: docker push $ECR_REPO:$GITHUB_SHA
       - name : Tag Docker Image 
@@ -81,6 +81,19 @@ jobs:
       - name: Push tagged Image to ECR
         run:  docker push $ECR_REPO:latest             
 
+  ValidateTerraform:
+    name: Validate Terraform
+    needs: [Build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Initialize Terraform
+        run: |
+          cd deploy/
+          terraform init -backend=false
+          terraform validate
+          terraform fmt -check
 
   DeployDev:
     name: deploy to dev environment
@@ -94,15 +107,7 @@ jobs:
       - name: Deploy to dev
         run: echo deployed to dev environment. 
 
-  ValidateTerraform:
-    name: Validate Terraform
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: compile & build docker image
-        run: docker build --tag webapp .
+  
         
         
   DeployStaging:
