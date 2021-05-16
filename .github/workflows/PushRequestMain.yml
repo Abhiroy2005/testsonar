@@ -74,7 +74,7 @@ DeployStaging:
         run:  echo deployed to Staging
 
 
-  DeployProduction:
+DeployProduction:
     name: Deploy to Production environment
     needs: [DeployStaging]
     runs-on: ubuntu-latest
