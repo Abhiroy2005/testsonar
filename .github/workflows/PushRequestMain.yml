@@ -56,39 +56,17 @@ jobs:
             export TF_VAR_ecr_image_api=$ECR_REPO:$GITHUB_SHA
             docker-compose -f deploy/docker-compose.yml run --rm terraform init
             docker-compose -f deploy/docker-compose.yml run --rm terraform workspace select dev || terraform workspace new dev
-            docker-compose -f deploy/docker-compose.yml run --rm terraform plan
+            docker-compose -f deploy/docker-compose.yml run --rm terraform plan -out staging.plan
+            docker-compose -f deploy/docker-compose.yml run --rm terraform show staging.plan > staging.html
+
           env:
             AWS_ACCESS_KEY_ID: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}     
-    
-  UpdatePullRequest:
-      name: Update Pull Request With Report
-      needs: [TerraformPlan]
-      runs-on: ubuntu-latest
-      env:
-        ECR_REPO: ${{secrets.ECR_REPO}}
-    
-      steps: 
-        - name: Check Out code
-          uses: actions/checkout@v2
-        - name: update request
-          uses: actions/github-script@0.9.0
-          script: |
-          const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-        #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-        #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
-          <details><summary>Show Plan</summary>
-          \`\`\`${process.env.PLAN}\`\`\`
-          </details>
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
 
-          github.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          })
-
+        - uses: ahmadnassri/action-terraform-report@v2
+          with:
+            # tell the action the plan outputs
+            terraform-text: ${{ github.workspace }}/staging.html
 
   
   DeployStaging:
