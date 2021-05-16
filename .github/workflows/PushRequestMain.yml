@@ -61,7 +61,7 @@ TerraformPlanDev:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}     
                
   
-  DeployStaging:
+DeployStaging:
     name: Deploy to Staging environment
     if: github.even_name == 'refs/head/main'
     needs: [TerraformPlanDev]
