@@ -107,7 +107,6 @@ jobs:
 
       - name: Create Terraform Plan
         run: |
-          cd deploy/
           export TF_VAR_ecr_image_api=$ECR_REPO:$GITHUB_SHA
           docker-compose -f deploy/docker-compose.yml run --rm terraform init -backend=false
           docker-compose -f deploy/docker-compose.yml run --rm terraform workspace select dev || terraform workspace new dev
