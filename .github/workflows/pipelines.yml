@@ -81,19 +81,6 @@ jobs:
       - name: Push tagged Image to ECR
         run:  docker push $ECR_REPO:latest             
 
-  ValidateTerraform:
-    name: Validate Terraform
-    needs: [Build]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Initialize Terraform
-        run: |
-          cd deploy/
-          terraform init -backend=false
-          terraform validate
-          terraform fmt -check 
 
   DeployDev:
     name: deploy to dev environment
