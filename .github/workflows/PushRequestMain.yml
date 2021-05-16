@@ -42,8 +42,8 @@ Build:
   
   TerraformPlanDev:
     name: Create terraform plan for development envrionement
-    if: github.event.pull_request.merged == 'true'
-    needs: [ValidateTerraform]
+    
+    needs: [Build]
     runs-on: ubuntu-latest
     environment:
       name: Development 
