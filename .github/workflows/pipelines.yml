@@ -95,21 +95,46 @@ jobs:
           terraform validate
           terraform fmt -check   
 
-  DeployDev:
-    name: deploy to dev environment
+  TerraformPlanDev:
+    name: Create terraform plan for development envrionement
     if: github.event_name == 'pull_request'
-    needs: [Build]
+    needs: [Build,ValidateTerraform]
     runs-on: ubuntu-latest
     environment:
       name: Development 
       url: 'http://dev.myapp.com'
     steps:
-      - name: Deploy to dev
-        run: echo deployed to dev environment. 
+      - name: Terraform Plan For Development Env
+      - uses: actions/checkout@v2
 
-  
-        
-        
+      - name: Create Terraform Plan
+        run: |
+          cd deploy/
+          export TF_VAR_ecr_image_api=$ECR_REPO:$GITHUB_SHA
+          terraform init
+          terraform workspace select dev || terraform workspace new dev
+          terraform plan
+               
+  TerraformApplyDev:
+    name: Apply terraform plan for development envrionement
+    if: github.event_name == 'pull_request'
+    needs: [TerraformPlanDev]
+    runs-on: ubuntu-latest
+    environment:
+      name: Development 
+      url: 'http://dev.myapp.com'
+    steps:
+      - name: Terraform Apply For Development Env
+      - uses: actions/checkout@v2
+
+      - name: Apply Terraform Plan
+        run: |
+          cd deploy/
+          export TF_VAR_ecr_image_api=$ECR_REPO:$GITHUB_SHA
+          terraform init
+          terraform workspace select dev
+          terraform apply -auto-approve
+
   DeployStaging:
     name: Deploy to Staging environment
     if: github.even_name == 'refs/head/main'
