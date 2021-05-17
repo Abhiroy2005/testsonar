@@ -49,7 +49,7 @@ jobs:
       
       needs: [StagingPlan]
       runs-on: ubuntu-latest
-        env:
+      env:
         ECR_REPO: ${{secrets.ECR_REPO}}
       environment:
         name: Staging 
