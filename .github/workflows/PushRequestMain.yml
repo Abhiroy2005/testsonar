@@ -62,7 +62,7 @@ jobs:
   StagingApply:
       name: Create terraform plan for Staging envrionement
       
-      needs: [Build]
+      needs: [StagingPlan]
       runs-on: ubuntu-latest
       environment:
         name: Staging 
@@ -80,21 +80,6 @@ jobs:
           env:
             AWS_ACCESS_KEY_ID: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}     
-
-
-  
-  DeployStaging:
-      name: Deploy to Staging environment
-      if: github.even_name == 'refs/head/main'
-      needs: [StagingPlan]
-      runs-on: ubuntu-latest
-      environment:
-        name : Staging
-        url: 'http://staging.myapp.com'
-      steps:
-        - name: Deploy to Staging
-          run:  echo deployed to Staging
-
 
   DeployProduction:
       name: Deploy to Production Environment
