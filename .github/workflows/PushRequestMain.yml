@@ -60,7 +60,7 @@ jobs:
             AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}     
 
   StagingApply:
-      name: Create terraform plan for Staging envrionement
+      name: Apply terraform plan for Staging envrionement
       
       needs: [StagingPlan]
       runs-on: ubuntu-latest
