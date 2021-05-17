@@ -86,7 +86,7 @@ jobs:
   DeployStaging:
       name: Deploy to Staging environment
       if: github.even_name == 'refs/head/main'
-      needs: [TerraformPlan]
+      needs: [StagingPlan]
       runs-on: ubuntu-latest
       environment:
         name : Staging
