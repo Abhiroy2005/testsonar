@@ -7,7 +7,7 @@ on:
 
 jobs:
   Build:
-      name: Build and Push Docker Image To ECR
+      name: Build Docker Image
       
       runs-on: ubuntu-latest
       env:
@@ -29,17 +29,7 @@ jobs:
             aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
             aws-region: ap-south-1
 
-        - name: Connect to AWS ECR
-          id: connect-ecr
-          uses: aws-actions/amazon-ecr-login@v1
-
-        - name: Push docker image to ECR
-          run: docker push $ECR_REPO:$GITHUB_SHA
-        - name : Tag Docker Image 
-          run: docker tag $ECR_REPO:$GITHUB_SHA $ECR_REPO:latest
-        - name: Push tagged Image to ECR
-          run:  docker push $ECR_REPO:latest             
-
+        
   StagingPlan:
       name: Create terraform plan for Staging envrionement
       
@@ -60,7 +50,7 @@ jobs:
             AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}     
 
   StagingApply:
-      name: Apply terraform plan for Staging envrionement
+      name: Staging Apply
       
       needs: [StagingPlan]
       runs-on: ubuntu-latest
@@ -70,7 +60,7 @@ jobs:
       steps:
         - uses: actions/checkout@v2
 
-        - name: Create Terraform Plan
+        - name: Apply Terraform Plan To Staging Environment
           run: |
             export TF_VAR_ecr_image_api=$ECR_REPO:$GITHUB_SHA
             docker-compose -f deploy/docker-compose.yml run --rm terraform init
@@ -80,6 +70,19 @@ jobs:
           env:
             AWS_ACCESS_KEY_ID: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}     
+
+        - name: Connect to AWS ECR
+          id: connect-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+
+        - name: Push docker image to ECR
+          run: docker push $ECR_REPO:$GITHUB_SHA
+        - name : Tag Docker Image 
+          run: docker tag $ECR_REPO:$GITHUB_SHA $ECR_REPO:latest
+        - name: Push tagged Image to ECR
+          run:  docker push $ECR_REPO:latest             
+
+
 
   DeployProduction:
       name: Deploy to Production Environment
