@@ -1,4 +1,4 @@
-name: Push Request PipeLine
+name: Deployment
 
 on:
   push:
@@ -6,27 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  Build:
-      name: Build Docker Image
-      
-      runs-on: ubuntu-latest
-      env:
-        ECR_REPO: ${{secrets.ECR_REPO}}
-  
-      steps:
-        - name: Check Out code
-          uses: actions/checkout@v2
-        - name: Install Python for AWS CLI
-          run: sudo apt install python3
-        - name: Install AWS cli 
-          run: pip3 install awscli
-        - name: Build docker image and tag
-          run: docker build --compress -t $ECR_REPO:$GITHUB_SHA  .
-        
-
-        
+         
   StagingPlan:
-      name: Create terraform plan for Staging envrionement
+      name: Staging Plan
       
       needs: [Build]
       runs-on: ubuntu-latest
@@ -55,18 +37,14 @@ jobs:
         name: Staging 
         url: 'http://dev.myapp.com'
       steps:
-        - uses: actions/checkout@v2
-
-        - name: Apply Terraform Plan To Staging Environment
-          run: |
-            export TF_VAR_ecr_image_api=$ECR_REPO:$GITHUB_SHA
-            docker-compose -f deploy/docker-compose.yml run --rm terraform init
-            docker-compose -f deploy/docker-compose.yml run --rm terraform workspace select dev || terraform workspace new dev
-            docker-compose -f deploy/docker-compose.yml run --rm terraform plan 
-        
-          env:
-            AWS_ACCESS_KEY_ID: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
-            AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}     
+        - name: Check Out code
+          uses: actions/checkout@v2
+        - name: Install Python for AWS CLI
+          run: sudo apt install python3
+        - name: Install AWS Cli 
+          run: pip3 install awscli
+        - name: Build docker image and tag
+          run: docker build --compress -t $ECR_REPO:$GITHUB_SHA  .
 
         - name: Login to aws 
           uses: aws-actions/configure-aws-credentials@v1
@@ -90,6 +68,20 @@ jobs:
         - name: Push tagged Image to ECR
           run:  docker push $ECR_REPO:latest             
 
+        - uses: actions/checkout@v2
+
+        - name: Provision Resources
+          run: |
+            export TF_VAR_ecr_image_api=$ECR_REPO:$GITHUB_SHA
+            docker-compose -f deploy/docker-compose.yml run --rm terraform init
+            docker-compose -f deploy/docker-compose.yml run --rm terraform workspace select dev || terraform workspace new dev
+            docker-compose -f deploy/docker-compose.yml run --rm terraform apply 
+        
+          env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}     
+
+        
 
 
   DeployProduction:
