@@ -49,6 +49,8 @@ jobs:
       
       needs: [StagingPlan]
       runs-on: ubuntu-latest
+        env:
+        ECR_REPO: ${{secrets.ECR_REPO}}
       environment:
         name: Staging 
         url: 'http://dev.myapp.com'
