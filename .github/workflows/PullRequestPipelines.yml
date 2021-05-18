@@ -1,9 +1,8 @@
 name: Pull Request PipeLine
 
 on:
-  push:
-    branches:
-      - 'feature/**'
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 
