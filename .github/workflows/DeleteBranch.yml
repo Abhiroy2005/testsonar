@@ -16,6 +16,8 @@ jobs:
         name: Staging 
         url: 'http://dev.myapp.com'
       steps:
+      - name: Check Out code
+        uses: actions/checkout@v2
       - name: De-Provision Resources
         run: |
             docker-compose -f deploy/docker-compose.yml run --rm terraform init
