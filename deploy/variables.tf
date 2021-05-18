@@ -1,27 +1,20 @@
 
 variable "prefix" {
-  type = string
-  default = "pxsc-tht"
+  default = "tht"
 }
 
 variable "project" {
-  type = string
-  default = "Test Project"
+  default = "test project"
 }
 
 variable "contact" {
-  type = string
   default = "mdmello@phoenixcontact-sb.io"
 }
 
 variable "db_username" {
-  type = string
-  description = "Username fro the postgress database"
-  default= "tht"
+  default = "tht"
 }
 
 variable "db_password" {
-  type = string
-  description = "passowrd for the postgress database"
-  default= "tht"
+  default = "tht"
 }
