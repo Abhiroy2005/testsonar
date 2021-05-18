@@ -9,7 +9,7 @@ on:
 
 jobs:
   DeleteBranch:
-      name: DeleteBranch
+      name: DeleteStaging-Branch
       runs-on: ubuntu-latest
 
       environment:
@@ -22,7 +22,7 @@ jobs:
             docker-compose -f deploy/docker-compose.yml run --rm terraform workspace select staging 
             docker-compose -f deploy/docker-compose.yml run --rm terraform destroy -auto-approve
         
-        env:
+        env: 
             AWS_ACCESS_KEY_ID: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}     
   
