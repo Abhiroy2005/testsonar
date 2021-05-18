@@ -9,8 +9,6 @@ jobs:
          
   StagingPlan:
       name: Staging Plan
-      
-      needs: [Build]
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v2
