@@ -1,0 +1,28 @@
+name: Deployment
+
+on:
+  delete:
+    branches:
+      - 'feature/**'
+  workflow_dispatch:
+
+
+jobs:
+  DeleteBranch:
+      name: DeleteStaging-Branch
+      runs-on: ubuntu-latest
+
+      environment:
+        name: Staging 
+        url: 'http://dev.myapp.com'
+      steps:
+      - name: De-Provision Resources
+        run: |
+            docker-compose -f deploy/docker-compose.yml run --rm terraform init
+            docker-compose -f deploy/docker-compose.yml run --rm terraform workspace select staging 
+            docker-compose -f deploy/docker-compose.yml run --rm terraform destroy -auto-approve
+        
+        env: 
+            AWS_ACCESS_KEY_ID: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}     
+  
