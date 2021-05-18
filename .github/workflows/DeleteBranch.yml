@@ -1,0 +1,7 @@
+name: Deployment
+
+on:
+  delete:
+    branches:
+      - 'feature/**'
+  workflow_dispatch:

@@ -1,20 +1,22 @@
 
 variable "prefix" {
-  default = "scfam-terraform"
+  default = "pxsc-tht"
 }
 
 variable "project" {
-  default = "Scorefam11 Fantasy Sports"
+  default = "Test Project"
 }
 
 variable "contact" {
-  default = "IT@scorefam11.com"
+  default = "mdmello@phoenixcontact-sb.io"
 }
 
 variable "db_username" {
   description = "Username fro the postgress database"
+  default="tht"
 }
 
 variable "db_password" {
   description = "passowrd for the postgress database"
+  default="tht"
 }
