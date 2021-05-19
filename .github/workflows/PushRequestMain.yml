@@ -37,13 +37,13 @@ jobs:
       steps:
         - name: Check Out code
           uses: actions/checkout@v2
-        - name: Install Python for AWS CLI
-          run: sudo apt install python3
-        - name: Install AWS Cli 
-          run: pip3 install awscli
-        - name: Build docker image and tag
-          run: docker build --compress -t $ECR_REPO:$GITHUB_SHA  .
-
+        - name: Start containers
+          run: docker-compose -f "docker-compose.yml" up -d --build
+        
+        - name: Stop containers
+          if: always()
+          run: docker-compose -f "docker-compose.yml" down
+          
         - name: Login to aws 
           uses: aws-actions/configure-aws-credentials@v1
           with:
