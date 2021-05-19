@@ -38,12 +38,14 @@ jobs:
         - name: Check Out code
           uses: actions/checkout@v2
         - name: Start containers
-          run: docker-compose -f "docker-compose.yml" up -d --build
+          run: |
+          chmod +x ./scripts/entrypoint.sh
+          docker-compose -f "docker-compose.yml" up -d --build
         
         - name: Stop containers
           if: always()
           run: docker-compose -f "docker-compose.yml" down
-          
+
         - name: Login to aws 
           uses: aws-actions/configure-aws-credentials@v1
           with:
