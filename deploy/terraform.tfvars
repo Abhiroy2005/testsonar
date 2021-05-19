@@ -1,2 +1,2 @@
-db_username = "scorefam11"
-db_password = "Scorefam@11"
+db_username = "tht"
+db_password = "tht"
