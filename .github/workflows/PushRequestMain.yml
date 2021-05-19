@@ -61,12 +61,10 @@ jobs:
             aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
             aws-region: ap-south-1
             
-        - name: Push docker image to ECR
-          run: docker push $ECR_REPO:$GITHUB_SHA
-        - name : Tag Docker Image 
-          run: docker tag $ECR_REPO:$GITHUB_SHA $ECR_REPO:latest
-        - name: Push tagged Image to ECR
-          run:  docker push $ECR_REPO:latest             
+        - name: Push web server docker image to ECR
+          run: docker push ubuntu:latest
+        - name: Push db server tagged Image to ECR
+          run:  docker push postgres:latest             
 
         - uses: actions/checkout@v2
 
