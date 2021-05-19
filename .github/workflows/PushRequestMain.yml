@@ -62,9 +62,9 @@ jobs:
             aws-region: ap-south-1
             
         - name: Push web server docker image to ECR
-          run: docker push ubuntu:latest
+          run: docker push webserver
         - name: Push db server tagged Image to ECR
-          run:  docker push postgres:latest             
+          run:  docker push postgres-test-db             
 
         - uses: actions/checkout@v2
 
