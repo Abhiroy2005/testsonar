@@ -15,7 +15,7 @@ services:
 
   web:
     container_name: webserver 
-    image: "550916831555.dkr.ecr.ap-south-1.amazonaws.com/dev-terraform/"
+    image: "ubuntu"
     env_file:
       - database.env # configure postgres
     build: .
