@@ -62,7 +62,7 @@ jobs:
             aws-region: ap-south-1
             
         - name: Push web server docker image to ECR
-          run: docker-compose -f docker-compose.yml push 
+          run: docker push 
 
         - uses: actions/checkout@v2
 
