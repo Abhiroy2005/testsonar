@@ -1,0 +1,104 @@
+name: Staging Deployment
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+         
+  StagingPlan:
+      name: Staging Plan
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+
+        - name: Create Terraform Plan
+          run: |
+            export TF_VAR_ecr_image_api=$ECR_REPO:$GITHUB_SHA
+            docker-compose -f deploy/docker-compose.yml run --rm terraform init
+            docker-compose -f deploy/docker-compose.yml run --rm terraform workspace select staging || terraform workspace new staging
+            docker-compose -f deploy/docker-compose.yml run --rm terraform plan 
+        
+          env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}           
+        
+    
+
+  StagingApply:
+      name: Staging Apply
+      
+      needs: [StagingPlan]
+      runs-on: ubuntu-latest
+      env:
+        ECR_REPO: ${{secrets.ECR_REPO}}
+      environment:
+        name: Staging 
+        url: 'http://dev.myapp.com'
+      steps:
+        - name: Check Out code
+          uses: actions/checkout@v2
+        - name: Start containers
+          run: |
+            chmod +x ./scripts/entrypoint.sh
+            docker-compose -f "docker-compose.yml" up -d --build
+          
+        - name: Stop containers
+          if: always()
+          run: docker-compose -f "docker-compose.yml" down
+
+        - name: Login to aws 
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
+            aws-region: ap-south-1
+            
+        - name: Connect to AWS ECR
+          id: connect-ecr
+          uses: aws-actions/amazon-ecr-login@v1
+          with:
+            aws-access-key-id: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
+            aws-region: ap-south-1
+        
+        - name : Tag webapp Docker Image 
+          run: docker tag ubuntu:latest $ECR_REPO:ubuntu
+
+        - name: Push web server docker image to ECR
+          run: docker push $ECR_REPO:ubuntu
+
+        - name : Tag postgres Docker Image 
+          run: docker tag postgres:latest $ECR_REPO:postgres
+
+        - name: Push web server docker image to ECR
+          run: docker push $ECR_REPO:postgres
+
+
+        - uses: actions/checkout@v2
+
+        - name: Provision Resources
+          run: |
+            export TF_VAR_ecr_image_api=$ECR_REPO:$GITHUB_SHA
+            docker-compose -f deploy/docker-compose.yml run --rm terraform init
+            docker-compose -f deploy/docker-compose.yml run --rm terraform workspace select staging || terraform workspace new staging
+            docker-compose -f deploy/docker-compose.yml run --rm terraform apply -auto-approve
+        
+          env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}     
+
+        
+
+
+  DeployProduction:
+      name: Deploy to Production Environment
+      needs: [StagingApply]
+      runs-on: ubuntu-latest
+      environment:
+        name : Production
+        url: 'http://staging.myapp.com'
+      steps:
+        - name: Deploy to Production
+          run:  echo deployed to Production
