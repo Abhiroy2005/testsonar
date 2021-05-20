@@ -30,7 +30,7 @@ jobs:
           with:
             # tell the action the plan outputs
             terraform-text: ${{ github.workspace }}/terraform.text  
-            terraform-text: ${{ github.workspace }}/terraform.json  
+            terraform-json: ${{ github.workspace }}/terraform.json  
 
     
 
