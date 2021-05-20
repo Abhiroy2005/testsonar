@@ -92,13 +92,3 @@ jobs:
         
 
 
-  DeployProduction:
-      name: Deploy to Production Environment
-      needs: [StagingApply]
-      runs-on: ubuntu-latest
-      environment:
-        name : Production
-        url: 'http://staging.myapp.com'
-      steps:
-        - name: Deploy to Production
-          run:  echo deployed to Production
