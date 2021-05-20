@@ -26,12 +26,7 @@ jobs:
             AWS_ACCESS_KEY_ID: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }} 
         
-        - uses: ahmadnassri/action-terraform-report@v2
-          with:
-            # tell the action the plan outputs
-            terraform-text: ${{ github.workspace }}/terraform.text  
-            terraform-json: ${{ github.workspace }}/terraform.json  
-
+       
     
 
   StagingApply:
