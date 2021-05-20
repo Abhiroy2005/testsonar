@@ -1,4 +1,4 @@
-name: Pull Request PipeLine
+name: Integration Test
 
 on:
   pull_request:
