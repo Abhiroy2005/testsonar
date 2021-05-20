@@ -22,9 +22,9 @@ jobs:
             docker-compose -f deploy/docker-compose.yml run --rm terraform show -no-color terraform.plan > terraform.text
         - uses: ahmadnassri/action-terraform-report@v2
           with:
-          # tell the action the plan outputs
-          terraform-text: ${{ github.workspace }}/terraform.text  
-          
+            # tell the action the plan outputs
+            terraform-text: ${{ github.workspace }}/terraform.text  
+
           env:
             AWS_ACCESS_KEY_ID: ${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}     
