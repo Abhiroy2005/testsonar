@@ -15,7 +15,7 @@ services:
 
   web:
     container_name: webserver 
-    image: "webapp"
+    image: "ubuntu"
     env_file:
       - database.env # configure postgres
     build: .
