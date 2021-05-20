@@ -2,7 +2,7 @@ version: '3'
 services:
   db:
     container_name: postgres-test-db
-    image: "postgres" # use latest official postgres version
+    image: "550916831555.dkr.ecr.ap-south-1.amazonaws.com/dev-terraform/postgres" # use latest official postgres version
     env_file:
       - database.env # configure postgres
     volumes:
@@ -15,7 +15,7 @@ services:
 
   web:
     container_name: webserver 
-    image: "ubuntu"
+    image: "550916831555.dkr.ecr.ap-south-1.amazonaws.com/dev-terraform/ubuntu"
     env_file:
       - database.env # configure postgres
     build: .
