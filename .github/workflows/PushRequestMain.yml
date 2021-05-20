@@ -62,16 +62,16 @@ jobs:
             aws-region: ap-south-1
         
         - name : Tag webapp Docker Image 
-          run: docker tag webapp:latest $ECR_REPO:latest
+          run: docker tag ubuntu:latest $ECR_REPO:ubuntu
 
         - name: Push web server docker image to ECR
-          run: docker push $ECR_REPO:latest
+          run: docker push $ECR_REPO:ubuntu
 
         - name : Tag postgres Docker Image 
-          run: docker tag postgres:latest Database:latest
+          run: docker tag postgres:latest $ECR_REPO:postgres
 
         - name: Push web server docker image to ECR
-          run: docker push Database:latest
+          run: docker push $ECR_REPO:postgres
 
 
         - uses: actions/checkout@v2
